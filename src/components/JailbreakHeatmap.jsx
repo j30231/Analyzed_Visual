@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, Typography, Tabs, Tab, Box, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import Papa from 'papaparse';
-import overallTfRatio from '../data/overall_tf_ratio.csv';
-import combinedTenseTfRatio from '../data/combined_tense_tf_ratio.csv';
-import combinedQuantizationTfRatio from '../data/combined_quantization_tf_ratio.csv';
-import combinedQuantizationTenseTfRatio from '../data/combined_quantization_tense_tf_ratio.csv';
-import jailbreakSuccessRates from '../data/jailbreak_success_rates.csv';
 
 const JailbreakHeatmap = () => {
   const [selectedTab, setSelectedTab] = useState(0);
@@ -43,9 +38,10 @@ const JailbreakHeatmap = () => {
   };
 
   useEffect(() => {
-    const parseCSV = (csvData) => {
+    const fetchCSV = (path) => {
       return new Promise((resolve, reject) => {
-        Papa.parse(csvData, {
+        Papa.parse(path, {
+          download: true,
           header: true,
           dynamicTyping: true,
           skipEmptyLines: true,
@@ -71,11 +67,11 @@ const JailbreakHeatmap = () => {
     const loadData = async () => {
       try {
         const [tf1, tf2, tf3, tf4, success] = await Promise.all([
-          fetchCSV('/data/overall_tf_ratio.csv'),
-          fetchCSV('/data/combined_tense_tf_ratio.csv'),
-          fetchCSV('/data/combined_quantization_tf_ratio.csv'),
-          fetchCSV('/data/combined_quantization_tense_tf_ratio.csv'),
-          fetchCSV('/data/jailbreak_success_rates.csv'),
+          fetchCSV('http://localhost:5001/api/tf_ratios/overall_tf_ratio'),
+          fetchCSV('http://localhost:5001/api/tf_ratios/combined_tense_tf_ratio'),
+          fetchCSV('http://localhost:5001/api/tf_ratios/combined_quantization_tf_ratio'),
+          fetchCSV('http://localhost:5001/api/tf_ratios/combined_quantization_tense_tf_ratio'),
+          fetchCSV('http://localhost:5001/api/jailbreak_success_rates'),
         ]);
         setDataSets({
           tf_ratio1: tf1,
@@ -84,7 +80,6 @@ const JailbreakHeatmap = () => {
           tf_ratio4: tf4,
           success_rates: success,
         });
-        // 초기 샘플 데이터 설정 (Total ASR 탭)
         setCsvSample(tf1);
       } catch (error) {
         console.error('CSV 데이터 로딩 오류:', error);
