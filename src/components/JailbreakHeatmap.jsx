@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, Typography, Tabs, Tab, Box, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import Papa from 'papaparse';
+import overallTfRatio from '../data/overall_tf_ratio.csv';
+import combinedTenseTfRatio from '../data/combined_tense_tf_ratio.csv';
+import combinedQuantizationTfRatio from '../data/combined_quantization_tf_ratio.csv';
+import combinedQuantizationTenseTfRatio from '../data/combined_quantization_tense_tf_ratio.csv';
+import jailbreakSuccessRates from '../data/jailbreak_success_rates.csv';
 
 const JailbreakHeatmap = () => {
   const [selectedTab, setSelectedTab] = useState(0);
@@ -38,16 +43,13 @@ const JailbreakHeatmap = () => {
   };
 
   useEffect(() => {
-    const fetchCSV = (path) => {
+    const parseCSV = (csvData) => {
       return new Promise((resolve, reject) => {
-        Papa.parse(path, {
-          download: true,
+        Papa.parse(csvData, {
           header: true,
           dynamicTyping: true,
           skipEmptyLines: true,
-          transformHeader: (header) => {
-            return header.trim();
-          },
+          transformHeader: (header) => header.trim(),
           complete: (results) => {
             const processedData = results.data.map(row => {
               const newRow = {};
@@ -69,11 +71,11 @@ const JailbreakHeatmap = () => {
     const loadData = async () => {
       try {
         const [tf1, tf2, tf3, tf4, success] = await Promise.all([
-          fetchCSV('http://localhost:5001/api/tf_ratios/overall_tf_ratio'),
-          fetchCSV('http://localhost:5001/api/tf_ratios/combined_tense_tf_ratio'),
-          fetchCSV('http://localhost:5001/api/tf_ratios/combined_quantization_tf_ratio'),
-          fetchCSV('http://localhost:5001/api/tf_ratios/combined_quantization_tense_tf_ratio'),
-          fetchCSV('http://localhost:5001/api/jailbreak_success_rates'),
+          parseCSV(overallTfRatio),
+          parseCSV(combinedTenseTfRatio),
+          parseCSV(combinedQuantizationTfRatio),
+          parseCSV(combinedQuantizationTenseTfRatio),
+          parseCSV(jailbreakSuccessRates),
         ]);
         setDataSets({
           tf_ratio1: tf1,
