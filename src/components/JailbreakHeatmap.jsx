@@ -82,7 +82,7 @@ const JailbreakHeatmap = () => {
         });
         setCsvSample(tf1);
       } catch (error) {
-        console.error('CSV 데이터 로딩 오류:', error);
+        console.error('Error loading CSV data:', error);
       }
     };
 
@@ -151,7 +151,17 @@ const JailbreakHeatmap = () => {
         <table style={{ borderCollapse: 'collapse', width: '100%', tableLayout: 'fixed' }}>
           <thead>
             <tr>
-              <th style={{ width: selectedTab === 4 ? '6rem' : (selectedTab === 3 ? '4rem' : '3rem'), height: '2rem', textAlign: 'right', paddingRight: '1rem', fontSize: '0.7rem', whiteSpace: 'nowrap' }}>Category</th>
+              <th style={{ 
+                width: selectedTab === 4 ? '8rem' :  // T/F Maps
+                       selectedTab === 3 ? '7rem' :   // Quant-Tense
+                       selectedTab === 2 ? '7rem' :   // Quant-Lang
+                       '3rem',                        // 기본값
+                height: '2rem', 
+                textAlign: 'right', 
+                paddingRight: '1rem', 
+                fontSize: '0.7rem', 
+                whiteSpace: 'nowrap' 
+              }}>Category</th>
               {/* q1 ~ q100 라벨 추가 */}
               {qKeys.map((key, i) => (
                 <th key={i} style={{ width: '0.5rem', padding: '0.25rem', fontSize: '0.5rem', transform: 'rotate(-45deg)', whiteSpace: 'nowrap', verticalAlign: 'bottom' }}>
@@ -196,7 +206,7 @@ const JailbreakHeatmap = () => {
                           border: '1px solid #e2e8f0',
                           transition: 'background-color 0.2s',
                         }}
-                        title={type === 'success' ? `q${index + 1}: ${value === 'T' ? '성공' : '실패'}` : `q${index + 1}: ${displayValue}%`}
+                        title={type === 'success' ? `q${index + 1}: ${value === 'T' ? 'Success' : 'Failure'}` : `q${index + 1}: ${displayValue}%`}
                       />
                     </td>
                   );
@@ -209,22 +219,22 @@ const JailbreakHeatmap = () => {
         <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <Typography variant="body2" fontWeight="500">
-              {type === 'success' ? '성공률:' : selectedTab === 3 ? '0~19 구간별 색상:' : '구간별 색상:'}
+              {type === 'success' ? 'Success Rate:' : selectedTab === 3 ? 'Color by 0-19 range:' : 'Color by range:'}
             </Typography>
             {type !== 'success' ? (
               selectedTab === 3 ? (
                 <>
                   <div style={{ width: '0.75rem', height: '0.75rem', backgroundColor: '#FFFFFF', border: '1px solid #e2e8f0' }}></div>
-                  <Typography variant="caption">-1: 하얀색</Typography>
+                  <Typography variant="caption">-1: White</Typography>
                   <div style={{ width: '0.75rem', height: '0.75rem', backgroundColor: '#0D47A1' }}></div>
-                  <Typography variant="caption">0: 가장 진한 색</Typography>
+                  <Typography variant="caption">0: Darkest</Typography>
                   <div style={{ width: '0.75rem', height: '0.75rem', backgroundColor: '#E3F2FD' }}></div>
-                  <Typography variant="caption">19: 가장 연한 색</Typography>
+                  <Typography variant="caption">19: Lightest</Typography>
                 </>
               ) : (
                 <>
                   <div style={{ width: '0.75rem', height: '0.75rem', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}></div>
-                  <Typography variant="caption">실패 (0%)</Typography>
+                  <Typography variant="caption">Failure (0%)</Typography>
                   <div style={{ width: '0.75rem', height: '0.75rem', backgroundColor: '#ff0000' }}></div>
                   <Typography variant="caption">Q1-Q10</Typography>
                   <div style={{ width: '0.75rem', height: '0.75rem', backgroundColor: '#ff8c00' }}></div>
@@ -250,9 +260,9 @@ const JailbreakHeatmap = () => {
             ) : (
               <>
                 <div style={{ width: '0.75rem', height: '0.75rem', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}></div>
-                <Typography variant="caption">탈옥 실패 (F)</Typography>
+                <Typography variant="caption">Jailbreak Failed (F)</Typography>
                 <div style={{ width: '0.75rem', height: '0.75rem', backgroundColor: '#4caf50' }}></div>
-                <Typography variant="caption">탈옥 성공 (T)</Typography>
+                <Typography variant="caption">Jailbreak Success (T)</Typography>
               </>
             )}
           </div>
@@ -268,7 +278,7 @@ const JailbreakHeatmap = () => {
       <CardHeader
         title={
           <Typography variant="h5" component="div" align="center">
-            Jailbreak 성공 패턴 분석
+            Analysis of Jailbreak ASR Performance Under Quantization, Language Transition (EN/KR), and Temporal Variations (Past, Present, Future) 🛠️📚
           </Typography>
         }
       />
@@ -297,7 +307,7 @@ const JailbreakHeatmap = () => {
         </Box>
         {/* CSV 전체 데이터 표시 */}
         <Box sx={{ mt: 4 }}>
-          <Typography variant="h6" align="center">CSV 데이터 전체</Typography>
+          <Typography variant="h6" align="center">Full CSV Data</Typography>
           <div style={{ overflowX: 'auto' }}>
             <Table size="small">
               <TableHead>
