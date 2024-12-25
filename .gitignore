@@ -27,3 +27,7 @@ yarn-error.log*
 
 # screenshots
 스크린샷*.png
+
+# data
+/analyzed_data
+.DS_Store
