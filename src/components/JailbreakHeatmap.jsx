@@ -67,10 +67,10 @@ const JailbreakHeatmap = () => {
     const loadData = async () => {
       try {
         const [tf1, tf2, tf3, tf4, success] = await Promise.all([
-          fetchCSV('/data/overall_tf_ratio.csv'),
-          fetchCSV('/data/combined_tense_tf_ratio.csv'),
-          fetchCSV('/data/combined_quantization_tf_ratio.csv'),
-          fetchCSV('/data/combined_quantization_tense_tf_ratio.csv'),
+          fetchCSV('/data/tf_ratios/overall_tf_ratio.csv'),
+          fetchCSV('/data/tf_ratios/combined_tense_tf_ratio.csv'),
+          fetchCSV('/data/tf_ratios/combined_quantization_tf_ratio.csv'),
+          fetchCSV('/data/tf_ratios/combined_quantization_tense_tf_ratio.csv'),
           fetchCSV('/data/jailbreak_success_rates.csv'),
         ]);
         setDataSets({
