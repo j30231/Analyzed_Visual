@@ -7,6 +7,7 @@ const JailbreakHeatmap = () => {
   const [dataSets, setDataSets] = useState({
     tf_ratio1: [],
     tf_ratio2: [],
+    quant_asr: [],
     tf_ratio3: [],
     tf_ratio4: [],
     success_rates: [],
@@ -24,12 +25,15 @@ const JailbreakHeatmap = () => {
         setCsvSample(dataSets.tf_ratio2);
         break;
       case 2:
-        setCsvSample(dataSets.tf_ratio3);
+        setCsvSample(dataSets.quant_asr);
         break;
       case 3:
-        setCsvSample(dataSets.tf_ratio4);
+        setCsvSample(dataSets.tf_ratio3);
         break;
       case 4:
+        setCsvSample(dataSets.tf_ratio4);
+        break;
+      case 5:
         setCsvSample(dataSets.success_rates);
         break;
       default:
@@ -66,9 +70,10 @@ const JailbreakHeatmap = () => {
 
     const loadData = async () => {
       try {
-        const [tf1, tf2, tf3, tf4, success] = await Promise.all([
+        const [tf1, tf2, quantAsr, tf3, tf4, success] = await Promise.all([
           fetchCSV('/data/tf_ratios/overall_tf_ratio.csv'),
           fetchCSV('/data/tf_ratios/combined_tense_tf_ratio.csv'),
+          fetchCSV('/data/tf_ratios/quantization_average_ratio.csv'),
           fetchCSV('/data/tf_ratios/combined_quantization_tf_ratio.csv'),
           fetchCSV('/data/tf_ratios/combined_quantization_tense_tf_ratio.csv'),
           fetchCSV('/data/jailbreak_success_rates.csv'),
@@ -76,6 +81,7 @@ const JailbreakHeatmap = () => {
         setDataSets({
           tf_ratio1: tf1,
           tf_ratio2: tf2,
+          quant_asr: quantAsr,
           tf_ratio3: tf3,
           tf_ratio4: tf4,
           success_rates: success,
@@ -96,7 +102,7 @@ const JailbreakHeatmap = () => {
       return '#e0e0e0';
     } else {
       // 4번째 탭인 Quant-Tense의 색상 표현 변경
-      if (selectedTab === 3) {
+      if (selectedTab === 4) {
         if (value === -1) {
           return '#FFFFFF'; // 하얀색
         } else if (value === 0) {
@@ -152,9 +158,10 @@ const JailbreakHeatmap = () => {
           <thead>
             <tr>
               <th style={{ 
-                width: selectedTab === 4 ? '8rem' :  // T/F Maps
-                       selectedTab === 3 ? '7rem' :   // Quant-Tense
-                       selectedTab === 2 ? '7rem' :   // Quant-Lang
+                width: selectedTab === 5 ? '10rem' :  // T/F Maps
+                       selectedTab === 4 ? '7rem' :   // Quant-Tense
+                       selectedTab === 3 ? '7rem' :   // Quant-Lang
+                       selectedTab === 2 ? '7rem' :   // Quant-ASR
                        '3rem',                        // 기본값
                 height: '2rem', 
                 textAlign: 'right', 
@@ -175,20 +182,22 @@ const JailbreakHeatmap = () => {
               <tr key={rowIndex}>
                 <td style={{ 
                   fontFamily: 'monospace', 
-                  fontSize: (selectedTab === 3 || selectedTab === 4) ? '0.6rem' : '0.7rem',
+                  fontSize: (selectedTab === 4 || selectedTab === 5) ? '0.6rem' : '0.7rem',
                   fontWeight: '500', 
                   textAlign: 'right', 
                   paddingRight: '1rem',
-                  whiteSpace: selectedTab === 4 ? 'nowrap' : 'normal',
+                  whiteSpace: selectedTab === 5 ? 'nowrap' : 'normal',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis'
                 }}>
-                  {selectedTab === 3 
-                    ? `${row.Quan || ''} ${row.Lang || ''} ${row.Tens || ''}` 
-                    : row.All || 
-                      (row.Quan ? `${row.Quan} ${row.Lang}` : 
-                      (row.Tens ? `${row.Tens} ${row.Lang}` : row.Lang)) || 
-                      `${row.experiment_number} ${row.target_model}`
+                  {selectedTab === 2 
+                    ? <>{row.Quan || ''} <span style={{ color: '#FF0000', fontWeight: 'bold' }}>{row.ASR || ''}</span></>
+                    : selectedTab === 4 
+                      ? `${row.Quan || ''} ${row.Lang || ''} ${row.Tens || ''}` 
+                      : row.All || 
+                        (row.Quan ? `${row.Quan} ${row.Lang}` : 
+                        (row.Tens ? `${row.Tens} ${row.Lang}` : row.Lang)) || 
+                        `${row.experiment_number} ${row.target_model} ${row.tense}`
                   }
                 </td>
                 {qKeys.map((qKey, index) => {
@@ -219,10 +228,10 @@ const JailbreakHeatmap = () => {
         <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <Typography variant="body2" fontWeight="500">
-              {type === 'success' ? 'Success Rate:' : selectedTab === 3 ? 'Color by 0-19 range:' : 'Color by range:'}
+              {type === 'success' ? 'Success Rate:' : selectedTab === 4 ? 'Color by 0-19 range:' : 'Color by range:'}
             </Typography>
             {type !== 'success' ? (
-              selectedTab === 3 ? (
+              selectedTab === 4 ? (
                 <>
                   <div style={{ width: '0.75rem', height: '0.75rem', backgroundColor: '#FFFFFF', border: '1px solid #e2e8f0' }}></div>
                   <Typography variant="caption">-1: White</Typography>
@@ -271,7 +280,7 @@ const JailbreakHeatmap = () => {
     );
   };
 
-  const { tf_ratio1, tf_ratio2, tf_ratio3, tf_ratio4, success_rates } = dataSets;
+  const { tf_ratio1, tf_ratio2, quant_asr, tf_ratio3, tf_ratio4, success_rates } = dataSets;
 
   return (
     <Card sx={{ width: '100%' }}>
@@ -294,6 +303,7 @@ const JailbreakHeatmap = () => {
         >
           <Tab label="Total ASR" />
           <Tab label="Lang-Tense" />
+          <Tab label="Quant-ASR" />
           <Tab label="Quant-Lang" />
           <Tab label="Quant-Tense" />
           <Tab label="T/F Maps" />
@@ -301,9 +311,10 @@ const JailbreakHeatmap = () => {
         <Box sx={{ mt: 2 }}>
           {selectedTab === 0 && renderHeatmap(tf_ratio1, 'ratio')}
           {selectedTab === 1 && renderHeatmap(tf_ratio2, 'ratio')}
-          {selectedTab === 2 && renderHeatmap(tf_ratio3, 'ratio')}
-          {selectedTab === 3 && renderHeatmap(tf_ratio4, 'ratio')}
-          {selectedTab === 4 && renderHeatmap(success_rates, 'success')}
+          {selectedTab === 2 && renderHeatmap(quant_asr, 'ratio')}
+          {selectedTab === 3 && renderHeatmap(tf_ratio3, 'ratio')}
+          {selectedTab === 4 && renderHeatmap(tf_ratio4, 'ratio')}
+          {selectedTab === 5 && renderHeatmap(success_rates, 'success')}
         </Box>
         {/* CSV 전체 데이터 표시 */}
         <Box sx={{ mt: 4 }}>
